@@ -1,40 +1,569 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
 
-		<title>reveal.js</title>
+    <title>Cool Things in C</title>
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
+    <link rel="stylesheet" href="dist/reset.css" />
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/blood.css" />
+    <style>
+      .type {
+        font-family: monospace;
+        font-weight: 900;
+      }
+    </style>
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
+  </head>
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Cool Things in C</h1>
+          <p>
+            <small
+              >Created by
+              <a href="https://github.com/acamol">Aviad Gafni</a></small
+            >
+          </p>
+        </section>
+        <section>
+          <section>
+            <h3>Introduction</h3>
+            <p>
+              Most of the things I'm going to present here are available in
+              <a href="https://acamol.github.io/til/">my blog</a> (a shameless
+              plug) if you want to explore them in more details, or want to be
+              updated with new things I discover.
+            </p>
+          </section>
+          <section>
+            <p>Also, some are quite useless.</p>
+            <blockquote>
+              "There is much pleasure to be gained from useless knowledge."<br />
+              - Bertrand Russell
+            </blockquote>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Item #1 - C Standard Types</h2>
+          </section>
+          <section data-auto-animate>
+            <h3>Integer Types</h3>
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
+            <small>Defined in <code class="type">"stdint.h"</code>.</small>
+
+            <h4 data-id="title1">Exact-Width</h4>
+            <p data-id="para1">
+              <small
+                ><code class="type">intN_t, uintN_t</code> - The signed/unsigned
+                type that occupies <i>exactly</i> N-bits.</small
+              >
+            </p>
+
+            <h4 data-id="title2">Minimum-Width</h4>
+            <p data-id="para2">
+              <small>
+                <code class="type">intN_least_t, uintN_least_t</code> - The
+                <i>smallest</i> type that can represent the signed/unsigned
+                N-bit integer on the platform.</small
+              >
+            </p>
+
+            <h4 data-id="title3">Greatest-Width</h4>
+            <p data-id="para3">
+              <small
+                ><code class="type">intmax_t, uintmax_t</code> - The
+                signed/unsigned types that can hold the value of any
+                signed/unsigned integer.</small
+              >
+            </p>
+            <aside class="notes">
+              exact - optional. may or may not be present in the header. for
+              example, in a platform where the min addressable size is 32-bits,
+              uint8_t or uint16_t is not possible
+            </aside>
+          </section>
+          <section data-auto-animate>
+            <h3>Integer Types</h3>
+
+            <h4 data-id="title1">Fastest</h4>
+            <p data-id="para1">
+              <small
+                ><code class="type">int_fastN_t, uint_fastN_t</code> - The
+                standard does not say anything about the "meaning" of these
+                types, and it is left to the implementer to decide. Generally
+                speaking, they should be used whenever one wants to do
+                arithmetics in N-bits, but wants it to be done in the storage
+                unit in which it would be executed the fastest.</small
+              >
+            </p>
+
+            <h4 data-id="title3">Integers wide enough to hold pointers</h4>
+            <p data-id="para3">
+              <small
+                ><code class="type">intptr_t, uintptr_t</code> - Capable of
+                holding pointers. Useful to do more than what C allows through
+                pointer arithmetics. For example, a hash function for pointers.
+                These types are optional since it is not gureented that:
+                $$\text{sizeof}(\text{void*}) \leq
+                \text{sizeof}(\text{intmax\_t})$$</small
+              >
+            </p>
+          </section>
+          <section data-auto-animate>
+            <h3>Complex Types</h3>
+            <p><small>Defined in "complex.h".</small></p>
+
+            <p>In C99 we can do this:</p>
+            <pre><code data-trim class="language-c">
+			double complex z = 1 + 2*I;
+			</code></pre>
+
+            <div class="fragment">
+              <p data-id="para">
+                We can access the real and imaginary parts via creal and cimag:
+              </p>
+              <pre data-id="code"><code data-trim class="language-c">
+			printf("%.1f + %.1fi", creal(z), cimag(z)); // prints "1.0 + 2.0i"
+			</code></pre>
+            </div>
+
+            <aside class="notes">
+              C99. Only floating point real/imag because of the nature of
+              complex numbers (trigo)
+            </aside>
+          </section>
+          <section data-auto-animate="">
+            <h3>Complex Types</h3>
+            <p data-id="para">
+              The cool part is that C99 also includes complex number arithmetics
+              with the standard operators:
+            </p>
+            <pre data-id="code">
+				<code class="language-c" data-trim data-line-numbers>
+			double complex z = 1 + 2*I;
+
+			z = 1 / z; // z is now 0.2 - 0.4i
+			z *= z; // z is now -0.12 - 0.16i
+			z += z; // z is now -0.24 - 0.32i
+			z -= z; // z is now 0.0 + 0.0i
+				</code>
+			</pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h3>Item #2 - Initialization and Compound Literals</h3>
+          </section>
+          <section data-auto-animate>
+            <h3 data-id="title">Designated Initalizers</h3>
+
+            <h4 data-id="subtitle">Arrays</h4>
+            <pre data-id="code"><code data-trim class="language-c">
+				double uniform[10] = { [0 ... 3] = 0, [4 ... 5] = 0.5, [6 ... 9] = 0 };
+			</code></pre>
+
+            <aside class="notes">
+              C89+, but since C99 in any order. GCC also any order from C89
+            </aside>
+          </section>
+          <section data-auto-animate>
+            <h3 data-id="title">Designated Initalizer</h3>
+            <h4 data-id="subtitle">Structs and Unions</h4>
+            <pre data-id="code"><code data-trim data-line-numbers>
+					struct point { int x, y; };
+					struct point sp = { .x = 1, .y = 2};
+
+					union point {
+						struct {
+							int x, y;
+						};
+
+						struct {
+							int left, right;
+						}
+					};
+
+					union point up = { .x = 1, .y = 2};
+				</code></pre>
+          </section>
+          <section data-auto-animate>
+            <h3>Compound Literals</h3>
+            <div class="r-stack">
+              <div class="fragment fade-in-then-out">
+                <p>
+                  Sometimes we have a function that takes a pointer, like so:
+                </p>
+                <pre><code data-trim>void foo(int *bar);</code></pre>
+              </div>
+
+              <div class="fragment fade-in-then-out">
+                <p>
+                  But we don't care for the pointer. So we create a dummy just
+                  so we can call the function:
+                </p>
+                <pre><code data-line-numbers data-trim>
+					int dummy;
+					foo(&dummy);
+				</code></pre>
+              </div>
+
+              <div class="fragment fade-in-then-out">
+                <p data-id="para">Instead, we can use a compound literal:</p>
+                <pre data-id="code"><code data-trim>
+					foo(&(int)0);
+				</code></pre>
+                <p>
+                  <small
+                    >This looks a bit like a cast, and that is why Compound
+                    Literals are sometimes called Cast Constructors.</small
+                  >
+                </p>
+              </div>
+            </div>
+
+            <aside class="notes">C99, but with GCC since C89</aside>
+          </section>
+          <section data-auto-animate>
+            <h3>Compound Literals</h3>
+            <p data-id="para">Also with structs and unions:</p>
+            <pre data-id="code"><code data-line-numbers data-trim>
+				struct foo {
+					int x;
+					int y;
+				};
+
+				union bar {
+					int i;
+					float f;
+				};
+
+				// s, u are defined somewhere
+				s = (struct foo){ .x = 1, .y = 2};
+				u = (union bar){ .f = 0.1f };
+			</code></pre>
+          </section>
+          <section data-auto-animate>
+            <h3>Compound Literals</h3>
+            <p data-id="para">And arrays:</p>
+            <pre data-id="code"><code data-line-numbers data-trim>
+				// defined somewhere 
+				void foo(int *array, size_t size);
+
+				foo((int[]){ 1, 2, 3, 4, 5}, 5);
+			</code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Item #3 - Overloading</h2>
+          </section>
+          <section data-auto-animate>
+            <h3>Overloading</h3>
+            <p data-id="para">
+              As of C11, C supports overloading. Well... Sort of.<br />
+              Say we have these types:
+            </p>
+
+            <pre
+              data-id="code"
+            ><code data-line-numbers data-trim class="language-c">
+				struct circle {
+					double r;
+				};
+
+				struct triangle {
+					double edge1;
+					double edge2;
+					double edge3;
+				};
+
+				struct rectangle {
+					double height;
+					double width;
+				};
+			 </code></pre>
+          </section>
+          <section data-auto-animate>
+            <h3>Overloading</h3>
+            <p data-id="para">
+              We want to be able to calculate the area of each shape using a
+              single interface:
+            </p>
+            <pre
+              data-id="code"
+            ><code data-trim data-line-numbers class="language-c">
+				struct circle unit_circle = { .r = 1.0 };
+				struct triangle right_triangle = 
+					{ .edge1 = 3, .edge2 = 4, .edge3 = 5 };
+				struct rectangle square = { .height = 1, .width = 1};
+
+				printf("area = %f\n", calc_area(unit_circle));
+				printf("area = %f\n", calc_area(right_triangle));
+				printf("area = %f\n", calc_area(square));
+			</code></pre>
+          </section>
+          <section data-auto-animate>
+            <h3>Overloading</h3>
+            <pre
+              data-id="code"
+            ><code data-line-numbers="3-6|8-12|14-17|19-22|24-29" data-trim>
+				#include &lt;math.h&gt; 
+
+				static inline double calc_area_circle(struct circle c)
+				{
+					return M_PI * c.r * c.r;
+				}
+
+				static inline double calc_area_triangle(struct triangle t)
+				{
+					double p = (t.edge1 + t.edge2 + t.edge3) / 2;
+					return sqrt(p * (p - t.edge1) * (p - t.edge2) * (p - t.edge3));
+				}
+
+				static inline double calc_area_rectangle(struct rectangle r)
+				{
+					return r.width * r.height;
+				}
+
+				static inline double calc_area_default()
+				{
+					return -1.0;
+				}
+
+				// and finally, define our "overloading"
+				#define calc_area(shape) _Generic((shape), \
+					struct circle: calc_area_circle, \
+					struct triangle: calc_area_triangle, \
+					struct rectangle: calc_area_rectangle, \
+					default: calc_area_default)((shape))
+			</code></pre>
+            <p class="fragment">
+              <small
+                >(Pass by value could have been another item. For good measure,
+                see
+                <a href="https://github.com/HandmadeMath/Handmade-Math"
+                  >Handmade-Math</a
+                >)</small
+              >
+            </p>
+            <aside class="notes">
+              We can also not define a default case. That would result in a
+              compilation error, which might be preferable. But that error is
+              going to be super hard to understand.
+            </aside>
+          </section>
+          <section>
+            <h4>Running example just for fun:</h4>
+            <iframe
+              class="r-stretch"
+              data-src="https://onlinegdb.com/5ASwWOk5ZI"
+            ></iframe>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Item #4 - Preprocessor Tricks</h2>
+          </section>
+          <section data-auto-animate>
+            <h3 data-id="title">#ifdef Alternative</h3>
+            <p data-id="para">
+              Conditional preprocessor directives
+              <a
+                href="https://stackoverflow.com/questions/8010234/is-it-a-bad-practice-to-use-ifdef-in-code"
+                >can become</a
+              >
+              extremely hard to follow, as we very well know:
+            </p>
+
+            <pre data-id="code"><code data-line-numbers data-trim>
+            #ifdef GETHOSTNAME
+                char *hostname;
+            #   undef SITENAME
+            #   define SITENAME hostname
+            #else /* !GETHOSTNAME */
+            #   ifdef DOUNAME
+            #       include &lt;sys/utsname.h&gt;
+                    struct utsname utsn;
+            #       undef SITENAME;
+            #       define SITENAME UTSN.NODENAME
+            #   else /* !DOUNAME */
+            #       ifdef PHOSTNAME
+                        char *hostname
+            #           undef SITENAME
+            #           define SITENAME hostname
+            #       else /* !PHOSTNAME */
+            #           ifdef WHOAAMI
+            #               undef SITENAME
+            #               define SITENAME sysname
+            #           endif /* WHOAMI */
+            #       endif /* PHOSTNAME */
+            #   endif /* DOUNAME */
+            #endif /* GETHOSTNAME */
+			</code></pre>
+            <p>
+              <small
+                >Stolen from
+                <a
+                  href="https://www.usenix.org/legacy/publications/library/proceedings/sa92/spencer.pdf"
+                  >#ifdef Considered Harmful, or Portability Experience with C
+                  News</a
+                ></small
+              >
+            </p>
+          </section>
+          <section data-auto-animate>
+            <h3 data-id="title">#ifdef Alternative</h3>
+            <p data-id="para">
+              We can avoid some of this horror by using an old hack from the
+              Linux source code.
+            </p>
+            <pre
+              data-id="code"
+            ><code data-trim data-line-numbers="1-21|16-18" data-trim class="language-c">
+                // VERBOSE_DEBUG is a preprocessor token
+                // defined as 1 before compilation
+
+                int gcd(int a, int b)
+                {
+                    int c = a, d = b;
+
+                    while (a != b) {
+                        if (a > b) {
+                            a = a - b;
+                        } else {
+                            b = b - a;
+                        }
+                    }
+
+                    if (IS_ENABLED(VERBOSE_DEBUG)) {
+                        log(LOG_INFO, "the GCD of %d and %d is %d", c, d, a);
+                    }
+
+                    return a;
+                }
+			</code></pre>
+          </section>
+          <section data-auto-animate>
+            <h3 data-id="title">#ifdef Alternative</h3>
+            <p data-id="para">And how the magic happens:</p>
+            <pre
+              data-id="code"
+            ><code data-trim data-line-numbers="1-10|1-2|4|5-6|7-8" class="language-c">
+				#define __ARG_PLACEHOLDER_1 0,
+				#define __take_second_arg(__ignored, val, ...) val
+
+				#define __is_defined(x) ___is_defined(x)
+				#define ___is_defined(val) \
+				    ____is_defined(__ARG_PLACEHOLDER_##val)
+				#define ____is_defined(arg1_or_junk) \
+				    __take_second_arg(arg1_or_junk 1, 0)
+
+				#define IS_ENABLED(option) __is_defined(option)
+			</code></pre>
+            <p>
+              <small
+                >This is a somewhat simplified snippet. Full code
+                <a
+                  href="https://github.com/torvalds/linux/blob/master/include/linux/kconfig.h"
+                  >here</a
+                >.</small
+              >
+            </p>
+          </section>
+          <section data-auto-animate>
+            <h4>Macro that Expands to Itself</h4>
+            <p data-id="para1">
+              Self-referential macros don't expand recursively.
+            </p>
+            <p>Say we have this in a header file:</p>
+            <pre data-id="code1"><code data-trim data-line-numbers>
+				typedef enum {
+					#define EPERM EPERM
+					EPERM = 1,
+					#define ENOENT ENOENT
+					ENOENT,
+					// ...
+				} errno_t;
+			</code></pre>
+          </section>
+          <section data-auto-animate>
+            <h4>Macro that Expands to Itself</h4>
+            <p data-id="para1">
+              We can then do this whether the header is included or not:
+            </p>
+            <pre data-id="code1"><code data-trim data-line-numbers>
+				#ifdef ENOENT
+					return -ENOENT;
+				#else /* !ENOENT */
+					return -1;
+				#endif /* ENOENT */
+			</code></pre>
+          </section>
+          <section data-auto-animate>
+            <h3>Compile-Time Assertions</h3>
+            <p data-id="para2">
+              In C11, we can use <code>static_assert</code> for compile-time
+              assertions:
+            </p>
+            <pre data-id="code2"><code data-trim class="language-c">
+				static_assert(sizeof(struct foo) != 32, 
+					"the size of struct foo has changed!");
+			</code></pre>
+          </section>
+          <section data-auto-animate>
+            <h3>Compile-Time Assertions</h3>
+            <p data-id="para2">Pre-C11, we can use this macro:</p>
+            <pre data-id="code2"><code data-trim class="language-c">
+				#define BUILD_BUG_ON(condition) \
+					((void)sizeof(char[1 - 2*!!(condition)]));
+			</code></pre>
+            <p><small>(Also from the Linux source code)</small></p>
+            <div class="fragment">
+              <p>And use it in a similar fashion:</p>
+              <pre><code data-trim class="language-c">
+				BUILD_BUG_ON(sizeof(struct foo) != 32);
+			</code></pre>
+            </div>
+            <aside class="notes">
+              it works even without sizeof, but then we would have a size 1
+              array at runtime. the cast to void is so the compiler won't issue
+              warning for unused values
+            </aside>
+          </section>
+        </section>
+        <section>
+          <h2>That's it.</h2>
+        </section>
+      </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/math/math.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealNotes,
+          RevealMath.KaTeX,
+        ],
+      });
+    </script>
+  </body>
 </html>
